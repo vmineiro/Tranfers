@@ -20,11 +20,12 @@ class Service
     string nom_serv;
     int n_passageiros;
     Time h_max_chegada;
-    Time h_min_chegada;
+    Time h_min_recolha;
+    Time h_max_chegada;
 
 public:
     Service();
-    Service(string nome, int n_passageiros, int hour_serv, int min_serv, int sec_serv, int min_overhead);
+    Service(string nome, Time h_max_chegada, int min_overhead);
     
     void setNomServ(string nom);
     void setNumPassag(int num);

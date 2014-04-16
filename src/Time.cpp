@@ -8,25 +8,24 @@
 
 Time::Time()
 {
-    setTime(0, 0, 0);
+    setTime(0, 0);
 }
 
 // ==========================================================
 
-Time::Time(int hour, int minute, int second)
+Time::Time(int hour, int minute)
 {
-    setTime(hour,minute,second);
+    setTime(hour,minute);
 }
 
 // ==========================================================
 
-void Time::setTime( int hour, int minute, int second )
+void Time::setTime( int hour, int minute)
 {
     try
     {
         setHour(hour);
         setMinute(minute);
-        setSecond(second);
     }
     catch(Time::HourException &h)
     {
@@ -36,10 +35,6 @@ void Time::setTime( int hour, int minute, int second )
     {
         m.getMsg();
     }
-    catch(Time::SecondException &s)
-    {
-        s.getMsg();
-    }
     
 }
 
@@ -47,17 +42,14 @@ void Time::setTime( int hour, int minute, int second )
 
 void Time::get()
 {
-    int hour, minute, second;
+    int hour, minute;
     cout << "Enter hour : " ;
     cin >> hour;
     cout << endl ;
     cout << "Enter minute : " ;
     cin >> minute;
     cout << endl ;
-    cout << "Enter second : " ;
-    cin >> second;
-    cout << endl ;
-    setTime(hour,minute, second);
+    setTime(hour,minute);
 }
 
 // ==========================================================
@@ -86,17 +78,6 @@ void Time::setMinute( int m )
 
 // ==========================================================
 
-void Time::setSecond( int s )
-{
-    if(s < 0 || s > 59)
-    {
-        throw SecondException(s);
-    }
-    second = s;
-}
-
-// ==========================================================
-
 int Time::getHour ( ) const
 {
     return hour;
@@ -111,17 +92,10 @@ int Time::getMinute () const
 
 // ==========================================================
 
-int Time::getSecond () const
-{
-    return second;
-}
-
-// ==========================================================
-
 void Time::show()
 {
     cout << setfill('0') << setw(2) << hour << ":" << setw(2)
-    << minute << ":" << setw(2) << second;
+    << minute;
 }
 
 // ==========================================================
@@ -129,12 +103,7 @@ void Time::show()
 const Time Time::operator+(const Time &other) {
     int hour = (*this).getHour() + other.getHour();
     int min = (*this).getMinute() + other.getMinute();
-    int sec = (*this).getSecond() + other.getSecond();
-    if ( sec > 60 )
-    {
-        sec = sec - 60;
-        min = min + 1;
-    }
+
     if ( min > 60 )
     {
         min = min - 60;
@@ -145,7 +114,7 @@ const Time Time::operator+(const Time &other) {
         hour = hour - 24;
     }
  
-    return Time(hour,min,sec);
+    return Time(hour,min);
 }
 
 // ==========================================================
@@ -153,12 +122,7 @@ const Time Time::operator+(const Time &other) {
 const Time Time::operator-(const Time &other) {
     int hour = (*this).getHour() - other.getHour();
     int min = (*this).getMinute() - other.getMinute();
-    int sec = (*this).getSecond() - other.getSecond();
-    if ( sec < 0 )
-    {
-        sec = sec + 60;
-        min = min - 1;
-    }
+
     if ( min < 0 )
     {
         min = min + 60;
@@ -169,21 +133,21 @@ const Time Time::operator-(const Time &other) {
         hour = hour + 24;
     }
 
-    return Time(hour,min,sec);
+    return Time(hour,min);
 }
 
 // ==========================================================
 
 bool Time::operator==(const Time &other) const
 {
-    return ((hour == other.hour) && (minute == other.minute) && (second == other.second));
+    return ((hour == other.hour) && (minute == other.minute));
 }
 
 // ==========================================================
 
 ostream & operator << (ostream &os, const Time &s)
 {
-    os << setfill('0') << setw(2) << s.getHour() << ":" << setw(2) << s.getMinute() << ":" << setw(2) << s.getSecond();
+    os << setfill('0') << setw(2) << s.getHour() << ":" << setw(2) << s.getMinute();
     return os;
 }
 

@@ -15,20 +15,17 @@ class Time
 private:
     int hour; // 0 - 23 (24-hour clock format)
     int minute; // 0 - 59
-    int second; // 0 - 59
 
 public:
     Time();
-    Time(int hour, int minute, int second);
+    Time(int hour, int minute);
     
-    void setTime(int hour, int minute, int second);
+    void setTime(int hour, int minute);
     void setHour(int hour);
     void setMinute(int minute);
-    void setSecond(int second);
     
     int getHour() const;
     int getMinute() const;
-    int getSecond() const;
     
     void get();
     void show();
@@ -64,18 +61,6 @@ public:
         void getMsg()
         {
             cout << "Minuto Invalido: " << minute << endl;
-        }
-    };
-    
-    class SecondException
-    {
-        int second;
-        
-    public:
-        SecondException(int s){second = s;}
-        void getMsg()
-        {
-            cout << "Segundo Invalido: " << second << endl;
         }
     };
     
