@@ -13,14 +13,15 @@ Service::Service():serv_id(++last_serv_id)
 
 // ======================================================
 
-Service::Service(string nome, int n_passageiros, int hour_serv, int min_serv, int sec_serv, int min_overhead):serv_id(++last_serv_id)
+Service::Service(string nome, int n_passageiros, Time h_max_chegada, int dur_viagem_aero, int overhead):serv_id(++last_serv_id)
 {
     try
     {
         setNomServ(nome);
         setNumPassag(n_passageiros);
-        setHmaxChegada(hour_serv, min_serv, sec_serv);
-        setHminChegada(h_max_chegada,min_overhead);
+        setHmaxChegada(h_max_chegada);
+        setHmaxRecolha(dur_viagem_aero);
+        setHminRecolha(overhead);
 
     }
     catch(Service::NumPassagInvalid &p)
@@ -51,15 +52,27 @@ void Service::setNumPassag(int num)
 
 // ======================================================
 
-void Service::setHmaxChegada(int hour, int minute, int second)
+void Service::setHmaxChegada(Time h_max_chegada)
 {
-    h_max_chegada.setTime(hour, minute, second);
+    (this)->h_max_chegada = h_max_chegada;
 }
 
 // ======================================================
 
-void setHminChegada(Time h_max_chegada, int& min_overhead) {
-	h_min_chegada.setTime() = h_max_chegada - new Time (0,min_overhead,0);
+void Service::setHmaxRecolha(int dur_viagem_aero)
+{
+	Time t_viagem(dur_viagem_aero / 60,dur_viagem_aero % 60);
+
+    h_max_recolha = h_max_chegada - t_viagem;
+}
+
+// ======================================================
+
+void Service::setHminRecolha(int min_overhead)
+{
+	Time t_overhead(min_overhead / 60,min_overhead % 60);
+
+	h_min_recolha = h_max_recolha - t_overhead;
 }
 
 // ======================================================
@@ -75,6 +88,14 @@ int Service::getLastServId()
 {
     return last_serv_id;
 }
+
+// ======================================================
+
+void Service::resetServID()
+{
+    last_serv_id = 0;
+}
+
 
 // ======================================================
 
@@ -95,6 +116,20 @@ int Service::getNumPassag() const
 Time Service::getHmaxChegada() const
 {
     return h_max_chegada;
+}
+
+// ======================================================
+
+Time Service::getHmaxRecolha() const
+{
+    return h_max_recolha;
+}
+
+// ======================================================
+
+Time Service::getHminRecolha() const
+{
+    return h_min_recolha;
 }
 
 // ======================================================
