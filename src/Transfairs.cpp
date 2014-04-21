@@ -24,9 +24,44 @@ Service Transfairs::getAero() const {
 	return aero;
 }
 
-
 Graph<Service> Transfairs::getTransfGraph() const {
 	return transf_graph;
+}
+
+Vertex<Service>* Transfairs::getEarlierService() const {
+
+	Vertex<Service>* temp;
+	int numServices = transf_graph.getVertexSet().size();
+
+	temp = transf_graph.getVertexSet()[1];
+
+	for (int i = 2; i < numServices; i++){
+		Vertex<Service>* aux = transf_graph.getVertexSet()[i];
+		if (aux->getInfo().getHminRecolha() < temp->getInfo().getHminRecolha()){
+			temp = aux;
+		}
+	}
+
+	return temp;
+
+}
+
+Vertex<Service>* Transfairs::getEarlierMaxArrive() const {
+
+	Vertex<Service>* temp;
+	int numServices = transf_graph.getVertexSet().size();
+
+	temp = transf_graph.getVertexSet()[1];
+
+	for (int i = 2; i < numServices; i++){
+		Vertex<Service>* aux = transf_graph.getVertexSet()[i];
+		if (aux->getInfo().getHmaxChegada() < temp->getInfo().getHmaxChegada()){
+			temp = aux;
+		}
+	}
+
+	return temp;
+
 }
 
 void Transfairs::printInitialStatus() const{

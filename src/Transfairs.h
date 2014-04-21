@@ -19,6 +19,8 @@ class Transfairs{
 	Graph<Service> mst_graph;
 	vector<Service> dfs_vec;
 
+	vector<Service> bestPath;
+
 public:
 
 	Transfairs();
@@ -37,6 +39,8 @@ public:
 
 	int calcNumPassageiros();
 
+	Vertex<Service>* getEarlierService() const;
+	Vertex<Service>* getEarlierMaxArrive() const;
 
 
 };
