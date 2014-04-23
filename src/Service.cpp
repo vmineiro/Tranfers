@@ -77,6 +77,13 @@ void Service::setHminRecolha(int min_overhead)
 
 // ======================================================
 
+void Service::setHPassagem(Time hPassagem)
+{
+	this->h_passagem = hPassagem;
+}
+
+// ======================================================
+
 string Service::getNomServ() const
 {
     return nom_serv;
@@ -130,6 +137,13 @@ Time Service::getHmaxRecolha() const
 Time Service::getHminRecolha() const
 {
     return h_min_recolha;
+}
+
+// ======================================================
+
+Time Service::getHPassagem() const
+{
+    return h_passagem;
 }
 
 // ======================================================

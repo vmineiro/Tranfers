@@ -22,6 +22,7 @@ class Service
     Time h_max_chegada;
     Time h_min_recolha;
     Time h_max_recolha;
+    Time h_passagem;
 
 public:
 
@@ -33,6 +34,7 @@ public:
     void setHmaxChegada(Time h_max_chegada);
     void setHmaxRecolha(int dur_viagem_aero);
     void setHminRecolha(int overhead);
+    void setHPassagem(Time hPassagem);
     
     static int getLastServId();
     static void resetServID();
@@ -43,6 +45,7 @@ public:
     Time getHmaxChegada() const;
     Time getHmaxRecolha() const;
     Time getHminRecolha() const;
+    Time getHPassagem() const;
     
     bool operator == (const Service &s2) const;
     friend ostream & operator << (ostream &os, const Service &s);

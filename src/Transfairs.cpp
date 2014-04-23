@@ -109,11 +109,52 @@ void Transfairs::dfsCalc(){
     mst_graph.rotateVertexSet(aero); // A rota inicia-se no aerorporto
 
     dfs_vec = mst_graph.dfs();
+    dfs_vec.push_back(aero);
 
     for(int i=0;i<dfs_vec.size();i++)
     {
         cout << "STOP #" << i+1 << " - " << dfs_vec[i] << "\n";//endl;
     }
+
+}
+
+void Transfairs::calcTempPassagem(){
+
+	vector<Service> temp = dfs_vec;
+
+	Time horaChegada = getEarlierMaxArrive()->getInfo().getHmaxChegada();
+
+	int nServ = temp.size();
+
+	Service oriTemp = temp[nServ];
+	oriTemp.setHPassagem(horaChegada);
+	temp[nServ] = oriTemp;
+
+	for (; nServ >= 0; nServ--){
+		Service oriTemp = temp[nServ-1];
+		Service destTemp = temp[nServ];
+
+		int duracao = transf_graph.edgeCost(oriTemp.getServId()-1,destTemp.getServId()-1);
+
+		Time timeTravel(duracao/60,duracao%60);
+
+		Time horaPassagem = destTemp.getHPassagem()-timeTravel;
+
+		oriTemp.setHPassagem(horaPassagem);
+		temp[nServ-1] = oriTemp;
+
+	}
+	dfs_vec = temp;
+}
+
+void Transfairs::printDFS() const{
+
+	vector<Service> temp = dfs_vec;
+
+	for (int i = 0; i < dfs_vec.size(); i++){
+		Service serv = temp[i];
+		cout << serv << " hora passagem: " << serv.getHPassagem() << endl;
+	}
 
 }
 

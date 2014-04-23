@@ -23,6 +23,7 @@ class Transfairs{
 
 public:
 
+
 	Transfairs();
 
 	Service getAero() const;
@@ -33,6 +34,7 @@ public:
 
 	void printInitialStatus() const;
 	void printMST() const;
+	void printDFS() const;
 
 	void kruskal_ALT();
 	void dfsCalc();
@@ -42,6 +44,7 @@ public:
 	Vertex<Service>* getEarlierService() const;
 	Vertex<Service>* getEarlierMaxArrive() const;
 
+	void calcTempPassagem();
 
 };
 
