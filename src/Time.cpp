@@ -95,7 +95,7 @@ int Time::getMinute () const
 void Time::show()
 {
 	cout << setfill('0') << setw(2) << hour << ":" << setw(2)
-    		<< minute;
+    				<< minute;
 }
 
 // ==========================================================
@@ -104,7 +104,7 @@ const Time Time::operator+(const Time &other) {
 	int hour = (*this).getHour() + other.getHour();
 	int min = (*this).getMinute() + other.getMinute();
 
-	if ( min > 60 )
+	if ( min >= 60 )
 	{
 		min = min - 60;
 		hour = hour + 1;
@@ -139,9 +139,9 @@ const Time Time::operator-(const Time &other) {
 // ==========================================================
 
 bool Time::operator==(const Time &other) const
-		{
+				{
 	return ((hour == other.hour) && (minute == other.minute));
-		}
+				}
 
 // ==========================================================
 

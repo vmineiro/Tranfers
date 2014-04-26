@@ -14,37 +14,69 @@
 
 class Transfairs{
 
-	Service aero;
-	Graph<Service> transf_graph; /* Grafo gerado do Input */
-	Graph<Service> mst_graph;
-	vector<Service> dfs_vec;
+	Graph<Service> grafoInicial; /* Grafo gerado do Input */
 
-	vector<Service> bestPath;
+   int capacidadeVan = 10;
+
+   Graph<Service> grafoAlterado;
+
+   vector<Vertex<Service>* > percurso_P;
+
+   vector<Vertex<Service>* > percurso_K;
+
+   vector<Vertex<Service>* > percurso_D;
+
+   vector<Service> percurso_DFS;
+
+   vector<Service> solucao_P;
+
+   Time chegadaMaisTarde;
+   Time partidaMaisTarde;
+
 
 public:
-
-
 	Transfairs();
 
-	Service getAero() const;
-	Graph<Service> getTransfGraph() const;
+   void setGrafoInicial(Graph<Service> grafo);
 
-	void setAero(Service& aero);
-	void setTransfGraph(Graph<Service>& transf_graph);
 
-	void printInitialStatus() const;
-	void printMST() const;
-	void printDFS() const;
+   // métodos de percurso
+   void calculaPrim();
+   void printPRIM();
 
-	void kruskal_ALT();
-	void dfsCalc();
+   void calculaKruskal_R();
+   void printKruscal();
 
-	int calcNumPassageiros();
+   void calculaDijkstra();
+   void printDijkstra();
 
-	Vertex<Service>* getEarlierService() const;
-	Vertex<Service>* getEarlierMaxArrive() const;
+   // verificação de restrições
+   int numPassageirosTotal();
 
-	void calcTempPassagem();
+   //#####################################
+
+   void dfsCalc();
+   void dfsCalcPRIM();
+
+   vector<Service> my_dfs();
+   vector<Service> my_dfs_P();
+	bool my_dfs(Vertex<Service> *v,vector<Service> &res);
+
+
+	Vertex<Service>* getEarlierService() ;
+	Time getEarlierArriveTime() ;
+
+	void calcTempPassagem_DFS();
+
+	bool verificaRestricoes(Vertex<Service> *ori, Vertex<Service> * dest, vector<Service> &res);
+
+   Time calcTempViagem();
+
+   void encontraSolucao();;
+
+   void printSol(vector<Service> solucao) const;
+
+   void atualizaHoraPartida(vector<Service> &res);
 
 };
 

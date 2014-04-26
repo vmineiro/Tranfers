@@ -162,3 +162,11 @@ bool Service::operator == (const Service &s2) const
 }
 
 
+
+// ======================================================
+
+bool Service::operator < (const Service &s2) const
+{
+    return (h_min_recolha < s2.getHminRecolha());
+}
+

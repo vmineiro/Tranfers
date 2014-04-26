@@ -50,6 +50,8 @@ public:
     bool operator == (const Service &s2) const;
     friend ostream & operator << (ostream &os, const Service &s);
     
+    bool operator < (const Service &s2) const;
+
     class NumPassagInvalid
     {
         int n_passag;
