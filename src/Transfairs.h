@@ -53,7 +53,9 @@ public:
    void printDijkstra();
 
    // verificação de restrições
-   int numPassageirosTotal();
+   size_t numPassageirosTotal();
+
+   size_t numServices();
 
    //#####################################
 
@@ -66,7 +68,7 @@ public:
    vector<Service> my_dfs_P();
    vector<Service> my_dfs_P_case2();
 	bool my_dfs(Vertex<Service> *v,vector<Service> &res);
-   bool my_dfs_case2(Vertex<Service> *v,vector<Service> &res);
+   bool my_dfs_case2(Vertex<Service> *v,vector<Service> &res, bool* regresso);
 
 
 	Vertex<Service>* getEarlierService() ;
@@ -74,7 +76,7 @@ public:
 
 	void calcTempPassagem_DFS();
 
-	bool verificaRestricoes(Vertex<Service> *ori, Vertex<Service> * dest, vector<Service> &res);
+	bool continua(Service ori, Vertex<Service> * dest, int nPass);
 
    Time calcTempViagem();
 
@@ -84,6 +86,7 @@ public:
 
    void atualizaHoraPartida(vector<Service> &res);
    void atualizaHoraPercurso(vector<Service> &res);
+   int atualizaPassageiros(vector<Service> &res);
 
    bool verificaChegada(vector<Service> &res);
    bool verificaHorario(vector<Service> &res);

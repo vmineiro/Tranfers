@@ -8,6 +8,7 @@ void Transfairs::setGrafoInicial(Graph<Service> grafo)
    this->grafoInicial = grafo;
 }
 
+
 //###############################################################################################################################
 
 void Transfairs::calculaPrim() {
@@ -16,7 +17,6 @@ void Transfairs::calculaPrim() {
 
    percurso_P = grafoTemp.myCalculatePrim();
 
-   //grafoAlterado = grafoTemp;
 }
 
 void Transfairs::printPRIM(){
@@ -24,7 +24,6 @@ void Transfairs::printPRIM(){
       cout << percurso_P[i]->getInfo() << " dist: " << percurso_P[i]->getDist() << " path: " << percurso_P[i]->getPath() << endl;
    }
 }
-
 
 
 //###############################################################################################################################
@@ -35,11 +34,8 @@ void Transfairs::calculaKruskal_R() {
 
    percurso_K = grafoTemp.calculateKruskal_ALT(&grafoAlterado);
 
-   //grafoAlterado.print();
-
    grafoAlterado.rotateVertexSet(grafoInicial.getVertexSet()[0]->getInfo());
 
-   //grafoAlterado.print();
 }
 
 void Transfairs::printKruscal(){
@@ -47,7 +43,6 @@ void Transfairs::printKruscal(){
       cout << percurso_K[i]->getInfo() << " dist: " << percurso_K[i]->getDist() << " path: " << percurso_K[i]->getPath() << endl;
    }
 }
-
 
 
 //###############################################################################################################################
@@ -68,11 +63,9 @@ void Transfairs::printDijkstra(){
 }
 
 
-
 //###############################################################################################################################
 
-
-int Transfairs::numPassageirosTotal(){
+size_t Transfairs::numPassageirosTotal(){
 
    vector<Vertex<Service>* > temp = grafoInicial.getVertexSet();
 
@@ -85,6 +78,11 @@ int Transfairs::numPassageirosTotal(){
    }
 
    return totalPassag;
+}
+
+size_t Transfairs::numServices(){
+
+   return grafoInicial.getVertexSet().size()-1;
 }
 
 //###############################################################################################################################
@@ -118,23 +116,12 @@ void Transfairs::dfsCalc(){
    Time ultimoPercurso(ultimaViagem/60,ultimaViagem%60);
 
    percurso_DFS[nAux-1].setHPassagem(percurso_DFS[nAux-2].getHPassagem()+ultimoPercurso);
-   /*
-    for(int i=0;i<percurso_DFS.size();i++)
-    {
-    cout << "STOP #" << i+1 << " - " << percurso_DFS[i] << "\n";//endl;
-    }
-    */
+
 }
 
 
 
 void Transfairs::dfsCalcPRIM(){
-
-	//mst_graph.rotateVertexSet(aero); // A rota inicia-se no aerorporto
-
-   //dfs_vec = mst_graph.dfs();
-
-   //Graph<Service> grafoTemp = grafoInicial.clone();
 
    solucao_P = my_dfs_P();
 
@@ -147,12 +134,7 @@ void Transfairs::dfsCalcPRIM(){
    Time ultimoPercurso(ultimaViagem/60,ultimaViagem%60);
 
    solucao_P[nAux-1].setHPassagem(solucao_P[nAux-2].getHPassagem()+ultimoPercurso);
-   /*
-    for(int i=0;i<percurso_DFS.size();i++)
-    {
-    cout << "STOP #" << i+1 << " - " << percurso_DFS[i] << "\n";//endl;
-    }
-    */
+
 }
 
 
@@ -162,7 +144,7 @@ void Transfairs::calcTempPassagem_DFS(){
 
 	Time horaChegada = getEarlierArriveTime();
 
-	int nServ = temp.size() - 1;
+	size_t nServ = temp.size() - 1;
 
 	Service oriTemp = temp[nServ];
 	oriTemp.setHPassagem(horaChegada);
@@ -183,6 +165,7 @@ void Transfairs::calcTempPassagem_DFS(){
 
 	}
 	percurso_DFS = temp;
+
 }
 
 
@@ -322,11 +305,11 @@ bool Transfairs::my_dfs(Vertex<Service> *v,vector<Service> &res) {
       //vector<Edge<Service> >::iterator it= (v->getAdj()).begin();
       //vector<Edge<Service> >::iterator ite= (v->getAdj()).end();
 
-      //  for (; it !=ite; it++){
-      //   if ( it->getDest()->getVisited() == false ){
-            //validPoint = my_dfs(it->getDest(), res);
-            //   }
-            //}
+      //for (; it !=ite; it++){
+      // if ( it->getDest()->getVisited() == false ){
+      //    validPoint = my_dfs(it->getDest(), res);
+      // }
+      //}
 
    }
 
@@ -335,16 +318,8 @@ bool Transfairs::my_dfs(Vertex<Service> *v,vector<Service> &res) {
    }
 
    if (!validPoint){
-
-      //  if (res.size() == grafoInicial.getVertexSet().size()){
-      //
-      //}
-
-      //if (!validPoint) {
-         v->setVisited(false);
-         res.pop_back();
-      //}
-
+      v->setVisited(false);
+      res.pop_back();
    }
    return validPoint;
 }
@@ -353,12 +328,6 @@ bool Transfairs::my_dfs(Vertex<Service> *v,vector<Service> &res) {
 //##################################################################################################################
 
 void Transfairs::dfsCalcPRIM_case2(){
-
-	//mst_graph.rotateVertexSet(aero); // A rota inicia-se no aerorporto
-
-   //dfs_vec = mst_graph.dfs();
-
-   //Graph<Service> grafoTemp = grafoInicial.clone();
 
    solucao_P2 = my_dfs_P_case2();
 
@@ -371,12 +340,6 @@ void Transfairs::dfsCalcPRIM_case2(){
    Time ultimoPercurso(ultimaViagem/60,ultimaViagem%60);
 
    solucao_P2[nAux-1].setHPassagem(solucao_P2[nAux-2].getHPassagem()+ultimoPercurso);
-   /*
-    for(int i=0;i<percurso_DFS.size();i++)
-    {
-    cout << "STOP #" << i+1 << " - " << percurso_DFS[i] << "\n";//endl;
-    }
-    */
 }
 
 vector<Service> Transfairs::my_dfs_P_case2() {
@@ -384,6 +347,8 @@ vector<Service> Transfairs::my_dfs_P_case2() {
    Graph<Service> grafoTemp = grafoInicial.clone();
 
    grafoTemp.resetVisited();
+
+   bool regresso = false;
 
 	vector<Vertex<Service>*> mst_vec = grafoTemp.getVertexSet();
 
@@ -393,16 +358,22 @@ vector<Service> Transfairs::my_dfs_P_case2() {
 	for (; it !=ite; it++)
 		(*it)->setVisited(false);
 
+
 	vector<Service> res;
 	it=mst_vec.begin();
 
-   //(*it)->setVisited(true);
+   (*it)->setVisited(true);
    res.push_back((*it)->getInfo());
    it++;
 
    for (; it !=ite; it++)
       if ( (*it)->getVisited()==false ){
-         my_dfs_case2(*it,res);
+         my_dfs_case2(*it,res, &regresso);
+         if (regresso) {
+            res.push_back(mst_vec[0]->getInfo());
+            atualizaHoraPercurso(res);
+            regresso = false;
+         }
 		}
 
    size_t resSize = res.size();
@@ -420,31 +391,88 @@ vector<Service> Transfairs::my_dfs_P_case2() {
 	return res;
 }
 
-bool Transfairs::my_dfs_case2(Vertex<Service> *v,vector<Service> &res) {
-	v->setVisited(true);
+bool Transfairs::my_dfs_case2(Vertex<Service> *v,vector<Service> &res, bool* regresso) {
+
+   v->setVisited(true);
 
 	res.push_back(v->getInfo());
 
-   bool validPoint;
+   bool validPoint = false;
 
-	vector<Edge<Service> >::iterator it= (v->getAdj()).begin();
-	vector<Edge<Service> >::iterator ite= (v->getAdj()).end();
-	for (; it !=ite; it++){
-		if ( it->getDest()->getVisited() == false ){
+   if (res.size() == 2){
 
-         if (verificaRestricoes(v, it->getDest(), res)){
-            validPoint = my_dfs(it->getDest(), res);
-         } else {
-            validPoint = false;
+      atualizaHoraPartida(res);
+
+      if (res[0].getHPassagem() > partidaMaisTarde) {
+
+         v->setVisited(false);
+
+         return false;
+
+      }
+
+      int nPass = atualizaPassageiros(res);
+
+      for (int i = 0 ; i < (v->getAdj()).size(); i++){
+         if (regresso) return true;
+         if ( (v->getAdj())[i].getDest()->getVisited() == false ){
+
+            if (!continua(res[res.size()-1], (v->getAdj())[i].getDest(), nPass)) {
+
+            *regresso = true;
+
+               return true;
+
+            }
+
+            validPoint = my_dfs_case2((v->getAdj())[i].getDest(), res, regresso);
          }
+      }
 
-		}
+   } else {
+
+      atualizaHoraPercurso(res);
+
+      if (!verificaHorario(res)){
+
+         v->setVisited(false);
+         res.pop_back();
+         return false;
+
+      }
+
+      int nPass = atualizaPassageiros(res);
+
+      for (int i = 0 ; i < (v->getAdj()).size(); i++){
+         if (regresso) return true;
+         if ( (v->getAdj())[i].getDest()->getVisited() == false ){
+
+            if (!continua(res[res.size()-1], (v->getAdj())[i].getDest(), nPass)) {
+
+               *regresso = true;
+
+               return true;
+
+            }
+
+            validPoint = my_dfs_case2((v->getAdj())[i].getDest(), res, regresso);
+         }
+      }
+
+
    }
 
+   if (regresso) return true;
+   /*
+   if () {
+      validPoint = verificaChegada(res);
+   }
+   */
    if (!validPoint){
       v->setVisited(false);
       res.pop_back();
    }
+
    return validPoint;
 }
 
@@ -474,6 +502,21 @@ void Transfairs::atualizaHoraPartida(vector<Service> &res){
    Time horaPartida = horaParagem - horasPercurso;
 
    res[0].setHPassagem(horaPartida);
+}
+
+int Transfairs::atualizaPassageiros(vector<Service> &res){
+
+   int nPass = 0;
+
+   for (int i = 1; i < res.size(); i++){
+      if (res[i].getServId() == 1){
+         nPass = 0;
+      } else {
+         nPass += res[i].getNumPassag();
+      }
+   }
+
+   return nPass;
 }
 
 bool Transfairs::verificaChegada(vector<Service> &res){
@@ -506,58 +549,33 @@ bool Transfairs::verificaHorario(vector<Service> &res)
    return true;
 }
 
-bool Transfairs::verificaRestricoes(Vertex<Service> *ori, Vertex<Service> * dest, vector<Service> &res){
+bool Transfairs::continua(Service ori, Vertex<Service> * dest, int nPass){
 
-   // if (res.size()==2) {
+   int totalPassag = dest->getInfo().getNumPassag() + nPass;
 
-   //    atualizaHoraPartida(res);
-
-   //  if (res[0].getHPassagem() > partidaMaisTarde) {
-   //    return false;
-   // }
-
-   // return true;
-
-   // } else {
-
-   size_t resSize = res.size();
-   // if (resSize >2) {
-   int viagemAnterior = grafoInicial.edgeCost(res[resSize-2].getServId()-1, res[resSize-1].getServId()-1);
-
-   Time tempoAnterior(viagemAnterior/60,viagemAnterior%60);
-
-   Time paragemOri = res[resSize-2].getHPassagem() + tempoAnterior;
-
-   if (paragemOri < res[resSize-1].getHminRecolha() || paragemOri > res[resSize-1].getHmaxRecolha()){
+   if (totalPassag > capacidadeVan ) {
       return false;
    }
 
-   res[resSize-1].setHPassagem(paragemOri);
+   int duracaoViagem = grafoInicial.edgeCost(ori.getServId()-1, dest->getInfo().getServId()-1);
 
-   //
-   //     }
+   Time horasViagem(duracaoViagem/60,duracaoViagem%60);
+
+   Time chegada = ori.getHPassagem() + horasViagem;
+
+   if (chegada < dest->getInfo().getHminRecolha() || chegada > dest->getInfo().getHmaxRecolha()) {
+      return false;
+   }
    return true;
 
-
-   /*
-    Time paragemMinDestino = dest->getInfo().getHminRecolha();
-    Time paragemMaxDestino = dest->getInfo().getHmaxRecolha();
-
-    int duracaoViagem = grafoInicial.edgeCost(ori->getInfo().getServId()-1, dest->getInfo().getServId()-1);
-
-    Time tempoViagem(duracaoViagem/60,duracaoViagem%60);
-
-    Time chegadaDest = res[res.size()-1].getHPassagem() + tempoViagem;
-
-    if ((chegadaDest < paragemMinDestino) || chegadaDest > paragemMaxDestino) {
-    return false;
-    } else {
-    return true;
-    }
-
-    // }
-    */
 }
+
+
+//##################################################################################################################
+//##################################################################################################################
+
+//##################################################################################################################
+//##################################################################################################################
 
 
 Time Transfairs::calcTempViagem(){
@@ -577,48 +595,34 @@ void Transfairs::encontraSolucao(){
 
    calculaKruskal_R();
    dfsCalc();
-
-   //Time earlierPickUp = getEarlierService()->getInfo().getHminRecolha();
-
-   //int tempoViagem = grafoInicial.edgeCost(0, getEarlierService()->getInfo().getServId()-1);
-
-   //Time viagem(tempoViagem/60,tempoViagem%60);
-
-   //Time earlierStar = earlierPickUp - viagem;
-
    partidaMaisTarde =  chegadaMaisTarde - calcTempViagem();
-
-   calculaPrim();
-   dfsCalcPRIM();
-
-   printSol(solucao_P);
 
    if ((numPassageirosTotal() > capacidadeVan)) {
 
-      cout << "\nExcesso de Passageiro para recorrer apenas a uma carrinha\n" << endl;
+      cout << "\nExcesso de Passageiro para utilizar apenas a uma carrinha/viagem\n" << endl;
+
+      //dfsCalcPRIM_case2();
+      //printSol(solucao_P2);
 
    } else {
 
+      calculaPrim();
+      dfsCalcPRIM();
 
-      if ( solucao_P[solucao_P.size()-1].getHPassagem() > chegadaMaisTarde){
-         //   if (chegadaMaisTarde > calcTempViagem()){
+      if (solucao_P.size() == (numServices()+2)) {
+
+         cout << "\nSituação resolvida com apenas uma carrinha.\n" << endl;
+
+         printSol(solucao_P);
+
+      } else {
 
          cout << "\nViagem longa demais. É necessário mais do que uma viagem\n" << endl <<endl;
 
          //dfsCalcPRIM_case2();
-
-      } else {
-
-         cout << "\nSituação resolvida com apenas uma carrinha.\n" << endl;
-
-         //printSol(percurso_DFS);
-
-         //cout << endl;
-
-         printSol(solucao_P);
-
+         //printSol(solucao_P2);
       }
-   }//}
+   }
 }
 
 Vertex<Service>* Transfairs::getEarlierService() {
