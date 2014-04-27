@@ -62,11 +62,11 @@ Transfairs iniciaProblema(){
 
 	// NÓS - GRAFO
 	Service aero("A", 0, Time(), 0, 0); // Aeroporto
-	Service serv_b("B", 2, Time(11,0), 60, 60);
-	Service serv_c("C", 2, Time(11,0), 75, 60);
-	Service serv_d("D", 2, Time(10,30), 75, 60);
-	Service serv_e("E", 2, Time(9,0), 75, 60);
-	Service serv_f("F", 2, Time(10,0), 60, 60);
+	Service serv_b("B", 2, Time(11,0), 60, 90);
+	Service serv_c("C", 2, Time(11,0), 75, 90);
+	Service serv_d("D", 2, Time(9,30), 75, 90);
+	Service serv_e("E", 2, Time(10,0), 75, 90);
+	Service serv_f("F", 2, Time(10,0), 60, 90);
 
 	transf_graph.addVertex(aero);
 	transf_graph.addVertex(serv_b);

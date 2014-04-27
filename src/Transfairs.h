@@ -29,6 +29,8 @@ class Transfairs{
    vector<Service> percurso_DFS;
 
    vector<Service> solucao_P;
+   vector<Service> solucao_P2;
+
 
    Time chegadaMaisTarde;
    Time partidaMaisTarde;
@@ -57,10 +59,14 @@ public:
 
    void dfsCalc();
    void dfsCalcPRIM();
+   void dfsCalcPRIM_case2();
 
    vector<Service> my_dfs();
+
    vector<Service> my_dfs_P();
+   vector<Service> my_dfs_P_case2();
 	bool my_dfs(Vertex<Service> *v,vector<Service> &res);
+   bool my_dfs_case2(Vertex<Service> *v,vector<Service> &res);
 
 
 	Vertex<Service>* getEarlierService() ;
@@ -77,6 +83,10 @@ public:
    void printSol(vector<Service> solucao) const;
 
    void atualizaHoraPartida(vector<Service> &res);
+   void atualizaHoraPercurso(vector<Service> &res);
+
+   bool verificaChegada(vector<Service> &res);
+   bool verificaHorario(vector<Service> &res);
 
 };
 
