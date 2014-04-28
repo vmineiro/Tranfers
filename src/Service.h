@@ -21,27 +21,37 @@ class Service
     int n_passageiros;
     Time h_max_chegada;
     Time h_min_recolha;
-    Time h_max_chegada;
+    Time h_max_recolha;
+    Time h_passagem;
 
 public:
+
     Service();
-    Service(string nome, Time h_max_chegada, int min_overhead);
+    Service(string nome, int n_passageiros, Time h_max_chegada, int dur_viagem_aero, int overhead);
     
     void setNomServ(string nom);
     void setNumPassag(int num);
-    void setHmaxChegada(int hour, int minute, int second);
+    void setHmaxChegada(Time h_max_chegada);
+    void setHmaxRecolha(int dur_viagem_aero);
+    void setHminRecolha(int overhead);
+    void setHPassagem(Time hPassagem);
     
     static int getLastServId();
+    static void resetServID();
     
     string getNomServ() const;
     int getServId() const;
     int getNumPassag() const;
     Time getHmaxChegada() const;
-    
+    Time getHmaxRecolha() const;
+    Time getHminRecolha() const;
+    Time getHPassagem() const;
     
     bool operator == (const Service &s2) const;
     friend ostream & operator << (ostream &os, const Service &s);
     
+    bool operator < (const Service &s2) const;
+
     class NumPassagInvalid
     {
         int n_passag;

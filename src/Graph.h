@@ -10,7 +10,6 @@
 #include <limits>
 #include <cmath>
 #include <iostream>
-
 using namespace std;
 
 template <class T> class Edge;
@@ -32,7 +31,6 @@ class Vertex {
 	vector<Edge<T>  > adj;
 	bool visited;
 	bool processing;
-	int indegree;
 	double dist;
 	int set;
 public:
@@ -56,20 +54,25 @@ public:
 	Vertex* path;
 
 	void updateEdgeFlow(unsigned int index, float f);
+
+	//###################################################
+
+	bool getVisited() const;
+	void setVisited(bool condition);
+
 };
 
 
 template <class T>
 struct vertex_greater_than {
-    bool operator()(Vertex<T> * a, Vertex<T> * b) const {
-        return a->getDist() > b->getDist();
-    }
+	bool operator()(Vertex<T> * a, Vertex<T> * b) const {
+		return a->getDist() > b->getDist();
+	}
 };
 
 
 template <class T>
 bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
-	d->indegree--; //adicionado do exercicio 5
 	typename vector<Edge<T> >::iterator it= adj.begin();
 	typename vector<Edge<T> >::iterator ite= adj.end();
 	while (it!=ite) {
@@ -82,9 +85,9 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
 	return false;
 }
 
-//atualizado pelo exerc�cio 5
+//atualizado pelo exercÌcio 5
 template <class T>
-Vertex<T>::Vertex(T in): info(in), visited(false), processing(false), indegree(0), dist(0) {
+Vertex<T>::Vertex(T in): info(in), visited(false), processing(false), dist(0) {
 	path = NULL;
 }
 
@@ -110,6 +113,21 @@ T Vertex<T>::getInfo() const {
 	return this->info;
 }
 
+//###################################################
+
+template <class T>
+bool Vertex<T>::getVisited() const {
+	return visited;
+}
+
+
+template <class T>
+void Vertex<T>::setVisited(bool condition) {
+	visited = condition;
+}
+
+//###################################################
+
 template <class T>
 int Vertex<T>::getDist() const {
 	return this->dist;
@@ -131,16 +149,6 @@ void Vertex<T>::setInfo(T info) {
 	this->info = info;
 }
 
-/*
- *
- * retorna o n�mero de arestas que incidem no v�rtice
- *
-*/
-
-template <class T>
-int Vertex<T>::getIndegree() const {
-	return this->indegree;
-}
 
 template <class T>
 void Vertex<T>::updateEdgeFlow(unsigned int index, float f)
@@ -198,9 +206,9 @@ bool Edge<T>::operator<(const Edge<T> &other) const {
 
 template <class T>
 struct edge_greater_than {
-    bool operator()(Edge<T> a, Edge<T>  b) const {
-        return a.getWeight() > b.getWeight();
-    }
+	bool operator()(Edge<T> a, Edge<T>  b) const {
+		return a.getWeight() > b.getWeight();
+	}
 };
 
 
@@ -254,118 +262,185 @@ public:
 
 	//exercicio 8
 	Graph<T> clone();
-	void resetEdgeFlow();
 	vector<Vertex<T>*> calculatePrim();
+	vector<Vertex<T>*> myCalculatePrim();
 	vector<Vertex<T>*> calculateKruskal();
-	vector<Vertex<T>*> calculateFordFulkerson(T source);
-	float calculateFordFulkerson(Vertex<T>* current, Vertex<T>* parent, float min, Graph<T>* gf, Graph<T>* gr, vector<Vertex<T>*> visited);
-    
-    
-    /* =======================================================================
-     *
-     * PLANEAMENTO DE TRANSFERS - Fun��es acrescentadas
-     *
-     * =======================================================================
-     */
-    
-    void print() const;
-    vector<Vertex<T>*> calculateKruskal_ALT(Graph<T>* mst_graph);
-    int rotateVertexSet(const T &v_info);
-    int calcTempViagem(vector<T> &vec_viagem, const T &local_partida);
-    
+
+
+
+	/* =======================================================================
+	 *
+	 * PLANEAMENTO DE TRANSFERS - Funções acrescentadas
+	 *
+	 * =======================================================================
+	 */
+
+	void print() const;
+	vector<Vertex<T>*> calculateKruskal_ALT(Graph<T>* mst_graph);
+	int rotateVertexSet(const T &v_info);
+	int calcTempViagem(vector<T> &vec_viagem, const T &local_partida);
+
+	void resetVisited();
+
 };
 
 //============================================================================
 
 /*
- * Fun��o para imprimir as arestas do grafo
+ * Função para imprimir as arestas do grafo
  */
 template <class T>
 void Graph<T>::print() const
 {
-    for(int i=0;i<vertexSet.size();i++)
-    {
-        Vertex<T>* v = vertexSet[i];
-        
-        for(int j=0;j<v->adj.size();j++)
-        {
-            cout << v->adj[j].orig->info << " <-- " << v->adj[j].weight << " --> " << v->adj[j].dest->info << endl;
-        }
-    }
+	for(int i=0;i<vertexSet.size();i++)
+	{
+		Vertex<T>* v = vertexSet[i];
+
+		for(int j=0;j<v->adj.size();j++)
+		{
+			cout << v->adj[j].orig->info << " <-- " << v->adj[j].weight << " --> " << v->adj[j].dest->info << endl;
+		}
+	}
 }
 
+
 /*
- * Fun��o para colocar na 1a posicao do vertexSet, o vertice com info igual a v_info
+ * Função para imprimir as arestas do grafo
+ */
+template <class T>
+void Graph<T>::resetVisited()
+{
+	typename vector<Vertex<T>*>::const_iterator it= vertexSet.begin();
+	typename vector<Vertex<T>*>::const_iterator ite= vertexSet.end();
+	for (; it !=ite; it++)
+		(*it)->visited=false;
+}
+/*
+ * Função para colocar na 1a posicao do vertexSet, o vertice com info igual a v_info
  */
 
 template <class T>
 int Graph<T>::rotateVertexSet(const T &v_info)
 {
-    if(vertexSet[0]->info == v_info)
-    {
-        return 0;
-    }
-    
-    for(int i=0;i<vertexSet.size();i++)
-    {
-        rotate(vertexSet.begin(),vertexSet.begin()+1,vertexSet.end());
-        
-        if(vertexSet[0]->info == v_info)
-        {
-            return 0;
-        }
-    }
-    
-    return 1;
+	if(vertexSet[0]->info == v_info)
+	{
+		return 0;
+	}
+
+	for(int i=0;i<vertexSet.size();i++)
+	{
+		rotate(vertexSet.begin(),vertexSet.begin()+1,vertexSet.end());
+
+		if(vertexSet[0]->info == v_info)
+		{
+			return 0;
+		}
+	}
+
+	return 1;
 }
 
 /*
- * Fun��o para calcular o tempo de viagem total, a iniciar e a terminar no local de partida
+ * Função para calcular o tempo de viagem total, a iniciar e a terminar no local de partida
  */
 
 template<class T>
 int Graph<T>::calcTempViagem(vector<T> &vec_viagem, const T &local_partida)
 {
-    int temp_viagem = 0;
-    
-    for(int i=0;i<vec_viagem.size();i++)
-    {
-        Vertex<T>* orig = NULL;
-        
-        for(int j=0;j<vertexSet.size();j++)
-        {
-            if(vertexSet[j]->info == vec_viagem[i])
-            {
-                orig = vertexSet[j];
-                break;
-            }
-        }
-        
-        if(i != vec_viagem.size()-1)
-        {
-            for(int z=0;z<orig->adj.size();z++)
-            {
-                if(orig->adj[z].dest->info == vec_viagem[i+1])
-                {
-                    temp_viagem = temp_viagem + orig->adj[z].weight;
-                }
-            }
-        }
-        else
-        {
-            for(int z=0;z<orig->adj.size();z++)
-            {
-                if(orig->adj[z].dest->info == local_partida)
-                {
-                    temp_viagem = temp_viagem + orig->adj[z].weight;
-                }
-            }
-        }
-            
-        
-    }
-    
-    return temp_viagem;
+	int temp_viagem = 0;
+
+	for(int i=0;i<vec_viagem.size();i++)
+	{
+		Vertex<T>* orig = NULL;
+
+		for(int j=0;j<vertexSet.size();j++)
+		{
+			if(vertexSet[j]->info == vec_viagem[i])
+			{
+				orig = vertexSet[j];
+				break;
+			}
+		}
+
+		if(i != vec_viagem.size()-1)
+		{
+			for(int z=0;z<orig->adj.size();z++)
+			{
+				if(orig->adj[z].dest->info == vec_viagem[i+1])
+				{
+					temp_viagem = temp_viagem + orig->adj[z].weight;
+				}
+			}
+		}
+		else
+		{
+			for(int z=0;z<orig->adj.size();z++)
+			{
+				if(orig->adj[z].dest->info == local_partida)
+				{
+					temp_viagem = temp_viagem + orig->adj[z].weight;
+				}
+			}
+		}
+
+
+	}
+
+	return temp_viagem;
+}
+
+
+
+/*
+ *
+ * Esta função implementa o algoritmo de Prim para encontrar
+ * a árvore de expansão mínima a partir do primeiro vértice v do grafo a todos os outros vértices.
+ *
+ */
+
+template <class T>
+vector<Vertex<T>* > Graph<T>::myCalculatePrim()
+{
+	for(unsigned int i = 0; i < this->vertexSet.size(); i++) {
+		this->vertexSet[i]->path = NULL;
+		this->vertexSet[i]->dist = INT_INFINITY;
+		this->vertexSet[i]->visited = false;
+	}
+
+	Vertex<T>* v = this->vertexSet[0];
+	v->dist = 0;
+
+	vector< Vertex<T>* > pq;
+	pq.push_back(v);
+
+	make_heap(pq.begin(), pq.end(), vertex_greater_than<T>());
+
+	// a kind of Dijkstra modified
+	while( !pq.empty() ) {
+
+		v = pq.front();
+		pop_heap(pq.begin(), pq.end());
+		pq.pop_back();
+		if(!v->visited)
+		{
+			v->visited = true;
+			for(unsigned int i = 0; i < v->adj.size(); i++) {
+
+				Vertex<T>* w = v->adj[i].dest;
+
+				if(!w->visited)
+				{
+					if(v->adj[i].weight < w->dist ) {
+						w->dist = v->adj[i].weight;
+						w->path = v;
+						pq.push_back(w);
+					}
+				}
+			}
+		}
+		make_heap(pq.begin(), pq.end(), vertex_greater_than<T>());
+	}
+	return this->vertexSet;
 }
 
 
@@ -389,9 +464,9 @@ int Graph<T>::getNumCycles() {
 
 /*
  *
- * Esta fun��o verifica se o grafo dirigido � ac�clico (Directed Acyclic Graph)
+ * Esta função verifica se o grafo dirigido é acíclico (Directed Acyclic Graph)
  *
-*/
+ */
 
 template <class T>
 bool Graph<T>::isDAG() {
@@ -400,10 +475,10 @@ bool Graph<T>::isDAG() {
 
 /*
  *
- * Esta fun��o adiciona o n� in ao grafo. 
- * Retorna true se o n� foi adicionado com sucesso e false se n�o � poss�vel inserir esse n� (se j� existe um n� igual).
+ * Esta função adiciona o nó in ao grafo.
+ * Retorna true se o nó foi adicionado com sucesso e false se não é possível inserir esse nó (se já existe um nó igual).
  *
-*/
+ */
 
 template <class T>
 bool Graph<T>::addVertex(const T &in) {
@@ -418,8 +493,8 @@ bool Graph<T>::addVertex(const T &in) {
 
 /*
  *
- * Esta fun��o remove o n� in. Retorna true se o n� foi removido com sucesso e false sen�o (n� n�o existe). 
- * A remo��o de um n� implica a remo��o de todas as arestas com origem e/ou destino nesse n�.
+ * Esta função remove o nó in. Retorna true se o nó foi removido com sucesso e false senão (nó não existe).
+ * A remoção de um nó implica a remoção de todas as arestas com origem e/ou destino nesse nó.
  *
  */
 
@@ -452,8 +527,8 @@ bool Graph<T>::removeVertex(const T &in) {
 
 /*
  *
- * Esta fun��o adiciona ao grafo a aresta com origem no n� sourc, destino no n� dest e peso w. 
- * Retorna true se a aresta foi adicionado com sucesso e false se n�o � poss�vel inserir essa aresta.
+ * Esta função adiciona ao grafo a aresta com origem no nó sourc, destino no nó dest e peso w.
+ * Retorna true se a aresta foi adicionado com sucesso e false se não é possível inserir essa aresta.
  *
  */
 
@@ -465,13 +540,12 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w, double f) {
 	Vertex<T> *vS, *vD;
 	while (found!=2 && it!=ite ) {
 		if ( (*it)->info == sourc )
-			{ vS=*it; found++;}
+		{ vS=*it; found++;}
 		if ( (*it)->info == dest )
-			{ vD=*it; found++;}
+		{ vD=*it; found++;}
 		it ++;
 	}
 	if (found!=2) return false;
-	vD->indegree++;
 	vS->addEdge(vD,w,f);
 
 	return true;
@@ -480,8 +554,8 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w, double f) {
 
 /*
  *
- * Esta fun��o remove a aresta com origem no n� sourc e destino no n� dest. 
- * Retorna true se a aresta foi removida com sucesso e false sen�o (aresta n�o existe).
+ * Esta função remove a aresta com origem no nó sourc e destino no nó dest.
+ * Retorna true se a aresta foi removida com sucesso e false senão (aresta não existe).
  *
  */
 
@@ -493,9 +567,9 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 	Vertex<T> *vS, *vD;
 	while (found!=2 && it!=ite ) {
 		if ( (*it)->info == sourc )
-			{ vS=*it; found++;}
+		{ vS=*it; found++;}
 		if ( (*it)->info == dest )
-			{ vD=*it; found++;}
+		{ vD=*it; found++;}
 		it ++;
 	}
 	if (found!=2)
@@ -512,8 +586,8 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
  *
  * ================================================================================================
  *
- * Esta fun��o retorna um vetor contendo os elementos do grafo (conte�do dos n�s) 
- * quando sobre este � efectuada uma pesquisa em profundidade.
+ * Esta função retorna um vetor contendo os elementos do grafo (conteúdo dos nós)
+ * quando sobre este é efectuada uma pesquisa em profundidade.
  *
  */
 
@@ -526,8 +600,8 @@ vector<T> Graph<T>::dfs() const {
 	vector<T> res;
 	it=vertexSet.begin();
 	for (; it !=ite; it++)
-	    if ( (*it)->visited==false )
-	    	dfs(*it,res);
+		if ( (*it)->visited==false )
+			dfs(*it,res);
 	return res;
 }
 
@@ -538,17 +612,17 @@ void Graph<T>::dfs(Vertex<T> *v,vector<T> &res) const {
 	typename vector<Edge<T> >::iterator it= (v->adj).begin();
 	typename vector<Edge<T> >::iterator ite= (v->adj).end();
 	for (; it !=ite; it++)
-	    if ( it->dest->visited == false ){
-	    	//cout << "ok ";
-	    	dfs(it->dest, res);
-	    }
+		if ( it->dest->visited == false ){
+			//cout << "ok ";
+			dfs(it->dest, res);
+		}
 }
 
 
 /*
  *
- * Esta fun��o retorna um vetor contendo os elementos do grafo (conte�do dos n�s) 
- * quando sobre este � efectuada uma pesquisa em largura a partir de v.
+ * Esta função retorna um vetor contendo os elementos do grafo (conteúdo dos nós)
+ * quando sobre este é efectuada uma pesquisa em largura a partir de v.
  *
  */
 
@@ -584,9 +658,9 @@ Vertex<T>* Graph<T>::getVertex(const T &v) const {
 
 /*
  *
- * Atualiza, para todos os v�rtices do grafo, o valor do membro-dado indegree
+ * Atualiza, para todos os vértices do grafo, o valor do membro-dado indegree
  *
-*/
+ */
 
 template<class T>
 void Graph<T>::resetIndegrees() {
@@ -605,9 +679,9 @@ void Graph<T>::resetIndegrees() {
 
 /*
  *
- * Esta fun��o retorna um vetor contendo apontadores para os v�rtices-fonte do grafo.
+ * Esta função retorna um vetor contendo apontadores para os vértices-fonte do grafo.
  *
-*/
+ */
 
 template<class T>
 vector<Vertex<T>*> Graph<T>::getSources() const {
@@ -627,8 +701,8 @@ void Graph<T>::dfsVisit() {
 		(*it)->visited=false;
 	it=vertexSet.begin();
 	for (; it !=ite; it++)
-	    if ( (*it)->visited==false )
-	    	dfsVisit(*it);
+		if ( (*it)->visited==false )
+			dfsVisit(*it);
 }
 
 template <class T>
@@ -639,72 +713,20 @@ void Graph<T>::dfsVisit(Vertex<T> *v) {
 	typename vector<Edge<T> >::iterator ite= (v->adj).end();
 	for (; it !=ite; it++) {
 		if ( it->dest->processing == true) numCycles++;
-	    if ( it->dest->visited == false ){
-	    	dfsVisit(it->dest);
-	    }
+		if ( it->dest->visited == false ){
+			dfsVisit(it->dest);
+		}
 	}
 	v->processing = false;
 }
 
-/*
- *
- * Esta fun��o retorna um vetor contendo os elementos do grafo (membro-dado info dos v�rtices) ordenados topologicamente
- *
-*/
-
-template<class T>
-vector<T> Graph<T>::topologicalOrder() {
-	//vetor com o resultado da ordenacao
-	vector<T> res;
-
-	//verificar se � um DAG
-	if( getNumCycles() > 0 ) {
-		cout << "Ordenacao Impossivel!" << endl;
-		return res;
-	}
-
-	//garantir que os "indegree" estao inicializados corretamente
-	this->resetIndegrees();
-
-	queue<Vertex<T>*> q;
-
-	vector<Vertex<T>*> sources = getSources();
-	while( !sources.empty() ) {
-		q.push( sources.back() );
-		sources.pop_back();
-	}
-
-
-	//processar fontes
-	while( !q.empty() ) {
-		Vertex<T>* v = q.front();
-		q.pop();
-
-		res.push_back(v->info);
-
-		for(unsigned int i = 0; i < v->adj.size(); i++) {
-			v->adj[i].dest->indegree--;
-			if( v->adj[i].dest->indegree == 0) q.push( v->adj[i].dest );
-		}
-	}
-
-	//testar se o procedimento foi bem sucedido
-	if ( res.size() != vertexSet.size() ) {
-		while( !res.empty() ) res.pop_back();
-	}
-
-	//garantir que os "indegree" ficam atualizados ao final
-	this->resetIndegrees();
-
-	return res;
-}
 
 /*
  *
- * Esta fun��o retorna um vetor com a sequ�ncia dos elementos do grafo 
- * representando os v�rtices do caminho de origin at� dest, inclusiv�
+ * Esta função retorna um vetor com a sequência dos elementos do grafo
+ * representando os vértices do caminho de origin até dest, inclusivé
  *
-*/
+ */
 
 template<class T>
 vector<T> Graph<T>::getPath(const T &origin, const T &dest){
@@ -787,80 +809,12 @@ void Graph<T>::getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
 	}
 }
 
-/*
- *
- * Esta fun��o implementa um algoritmo para encontrar os caminhos mais curtos 
- * a partir do elemento v do grafo (v�rtice cujo conte�do � v) a todos os outros v�rtices do grafo, no caso de grafos n�o pesados.
- *
-*/
-
-template<class T>
-void Graph<T>::unweightedShortestPath(const T &s) {
-
-	for(unsigned int i = 0; i < vertexSet.size(); i++) {
-		vertexSet[i]->path = NULL;
-		vertexSet[i]->dist = INT_INFINITY;
-	}
-
-	Vertex<T>* v = getVertex(s);
-	v->dist = 0;
-	queue< Vertex<T>* > q;
-	q.push(v);
-
-	while( !q.empty() ) {
-		v = q.front(); q.pop();
-		for(unsigned int i = 0; i < v->adj.size(); i++) {
-			Vertex<T>* w = v->adj[i].dest;
-			if( w->dist == INT_INFINITY ) {
-				w->dist = v->dist + 1;
-				w->path = v;
-				q.push(w);
-			}
-		}
-	}
-}
-
 
 /*
  *
- * Esta fun��o implementa o algoritmo de Bellman-Ford para encontrar 
- * os caminhos mais curtos a partir do elemento v do grafo (v�rtice cujo conte�do � s) 
- * a todos os outros v�rtices, no caso de grafos pesados.
- *
-*/
-
-template<class T>
-void Graph<T>::bellmanFordShortestPath(const T &s) {
-
-	for(unsigned int i = 0; i < vertexSet.size(); i++) {
-		vertexSet[i]->path = NULL;
-		vertexSet[i]->dist = INT_INFINITY;
-	}
-
-	Vertex<T>* v = getVertex(s);
-	v->dist = 0;
-	queue< Vertex<T>* > q;
-	q.push(v);
-
-	while( !q.empty() ) {
-		v = q.front(); q.pop();
-		for(unsigned int i = 0; i < v->adj.size(); i++) {
-			Vertex<T>* w = v->adj[i].dest;
-			if(v->dist + v->adj[i].weight < w->dist) {
-				w->dist = v->dist + v->adj[i].weight;
-				w->path = v;
-				q.push(w);
-			}
-		}
-	}
-}
-
-
-/*
- *
- * Esta fun��o implementa o algoritmo de Dijkstra para encontrar 
- * os caminhos mais curtos a partir do elemento v do grafo (v�rtice cujo conte�do � s) 
- * a todos os outros v�rtices, no caso de grafos pesados.
+ * Esta função implementa o algoritmo de Dijkstra para encontrar
+ * os caminhos mais curtos a partir do elemento v do grafo (vértice cujo conteúdo é s)
+ * a todos os outros vértices, no caso de grafos pesados.
  *
  */
 
@@ -896,7 +850,7 @@ void Graph<T>::dijkstraShortestPath(const T &s) {
 				w->dist = v->dist + v->adj[i].weight;
 				w->path = v;
 
-				//se j� estiver na lista, apenas a actualiza
+				//se j· estiver na lista, apenas a actualiza
 				if(!w->processing)
 				{
 					w->processing = true;
@@ -925,40 +879,12 @@ int Graph<T>::edgeCost(int vOrigIndex, int vDestIndex)
 }
 
 
-void printSquareArray(int ** arr, unsigned int size)
-{
-	for(unsigned int k = 0; k < size; k++)
-	{
-		if(k == 0)
-		{
-			cout <<  "   ";
-			for(unsigned int i = 0; i < size; i++)
-				cout <<  " " << i+1 << " ";
-			cout << endl;
-		}
-
-		for(unsigned int i = 0; i < size; i++)
-		{
-			if(i == 0)
-				cout <<  " " << k+1 << " ";
-
-			if(arr[k][i] == INT_INFINITY)
-				cout << " - ";
-			else
-				cout <<  " " << arr[k][i] << " ";
-		}
-
-		cout << endl;
-	}
-}
-
-
 /*
  *
- * Esta fun��o implementa o algoritmo de Floyd-Warshall para encontrar 
- * os caminhos mais curtos entre todos os v�rtices v do grafo, no caso de grafos pesados.
+ * Esta função implementa o algoritmo de Floyd-Warshall para encontrar
+ * os caminhos mais curtos entre todos os vértices v do grafo, no caso de grafos pesados.
  *
-*/
+ */
 
 template<class T>
 void Graph<T>::floydWarshallShortestPath() {
@@ -980,7 +906,7 @@ void Graph<T>::floydWarshallShortestPath() {
 		for(unsigned int i = 0; i < vertexSet.size(); i++)
 			for(unsigned int j = 0; j < vertexSet.size(); j++)
 			{
-				//se somarmos qualquer coisa ao valor INT_INFINITY, ocorre overflow, o que resulta num valor negativo, logo nem conv�m considerar essa soma
+				//se somarmos qualquer coisa ao valor INT_INFINITY, ocorre overflow, o que resulta num valor negativo, logo nem convÈm considerar essa soma
 				if(W[i][k] == INT_INFINITY || W[k][j] == INT_INFINITY)
 					continue;
 
@@ -995,16 +921,6 @@ void Graph<T>::floydWarshallShortestPath() {
 }
 
 
-
-template <class T>
-void Graph<T>::resetEdgeFlow()
-{
-	for (unsigned int i = 0; i < vertexSet.size(); i++)
-	{
-		for (unsigned int a = 0; a < vertexSet[i]->adj.size(); a++)
-			vertexSet[i]->adj[a].flow = 0;
-	}
-}
 
 template <class T>
 Graph<T> Graph<T>::clone()
@@ -1026,10 +942,10 @@ Graph<T> Graph<T>::clone()
 
 /*
  *
- * Esta fun��o implementa o algoritmo de Prim para encontrar 
- * a �rvore de expans�o m�nima a partir do primeiro v�rtice v do grafo a todos os outros v�rtices.
+ * Esta função implementa o algoritmo de Prim para encontrar
+ * a árvore de expansão mínima a partir do primeiro vértice v do grafo a todos os outros vértices.
  *
-*/
+ */
 
 template <class T>
 vector<Vertex<T>* > Graph<T>::calculatePrim()
@@ -1046,7 +962,7 @@ vector<Vertex<T>* > Graph<T>::calculatePrim()
 	vector< Vertex<T>* > pq;
 	pq.push_back(v);
 
-	make_heap(pq.begin(), pq.end(), vertex_greater_than<int>());
+	make_heap(pq.begin(), pq.end(), vertex_greater_than<T>());
 
 	// a kind of Dijkstra modified
 	while( !pq.empty() ) {
@@ -1071,29 +987,29 @@ vector<Vertex<T>* > Graph<T>::calculatePrim()
 				}
 			}
 		}
-		make_heap(pq.begin(), pq.end(), vertex_greater_than<int>());
+		make_heap(pq.begin(), pq.end(), vertex_greater_than<T>());
 	}
 	return this->vertexSet;
 }
 
 /* ================================================================================================
  * ALGORITMO DE KRUSKAL
- * analisar as arestas por ordem crescente de peso e aceitar as que n�o provocarem ciclos (ganancioso)
+ * analisar as arestas por ordem crescente de peso e aceitar as que não provocarem ciclos (ganancioso)
  * ================================================================================================
  *
- * Esta fun��o implementa o algoritmo de Kruskal para encontrar a �rvore de expans�o m�nima no grafo.
+ * Esta função implementa o algoritmo de Kruskal para encontrar a árvore de expansão mínima no grafo.
  *
-*/
+ */
 
 template <class T>
 vector<Vertex<T>*> Graph<T>::calculateKruskal()
 {
-    //Initialize the var edges_accepted
-    unsigned edges_accepted = 0;
+	//Initialize the var edges_accepted
+	unsigned edges_accepted = 0;
 	if (vertexSet.size() == 0)
 		return this->vertexSet;
 
-    // Initialize the forest of vertex
+	// Initialize the forest of vertex
 	vector<Vertex<T>*> forest;
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++)
 	{
@@ -1163,19 +1079,19 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal()
  * 
  * ================================================================================================
  *
- * Esta fun��o implementa o algoritmo de Kruskal para encontrar a �rvore de expans�o m�nima no grafo.
+ * Esta função implementa o algoritmo de Kruskal para encontrar a árvore de expansão mínima no grafo.
  *
  */
 
 template <class T>
 vector<Vertex<T>*> Graph<T>::calculateKruskal_ALT(Graph<T>* mst_graph)
 {
-    //Initialize the var edges_accepted
-    unsigned edges_accepted = 0;
+	//Initialize the var edges_accepted
+	unsigned edges_accepted = 0;
 	if (vertexSet.size() == 0)
 		return this->vertexSet;
-    
-    // Initialize the forest of vertex
+
+	// Initialize the forest of vertex
 	vector<Vertex<T>*> forest;
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++)
 	{
@@ -1183,7 +1099,7 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal_ALT(Graph<T>* mst_graph)
 		v->set = i;
 		forest.push_back(v);
 	}
-    
+
 	//Initialize the list of edges
 	vector<Edge<T> > allEdges;
 	for (unsigned int i = 0; i < this->vertexSet.size(); i++)
@@ -1193,24 +1109,24 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal_ALT(Graph<T>* mst_graph)
 		for (unsigned int a = 0; a < v->adj.size(); a++)
 			allEdges.push_back(v->adj[a]);
 	}
-    
+
 	//Make heap from vector
 	make_heap(allEdges.begin(), allEdges.end(), edge_greater_than<T>());
-    
+
 	while (edges_accepted < vertexSet.size()-1)
 	{
 		sort_heap(allEdges.begin(), allEdges.end());
-        
+
 		Edge<T> minEdge = allEdges[0];		// get edge with minimum weight
 		allEdges.erase(allEdges.begin());
-        
+
 		//Get the vertices
 		T o = minEdge.orig->info;
 		T d = minEdge.dest->info;
-        
+
 		Vertex<T>* origin = NULL;
 		Vertex<T>* dest = NULL;
-        
+
 		for (unsigned int i = 0; i < forest.size(); i++)
 		{
 			if (o == forest[i]->info)
@@ -1218,7 +1134,7 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal_ALT(Graph<T>* mst_graph)
 			if (d == forest[i]->info)
 				dest = forest[i];
 		}
-        
+
 		if (origin->set != dest->set)
 		{
 			int minSet = min(origin->set, dest->set);
@@ -1232,245 +1148,21 @@ vector<Vertex<T>*> Graph<T>::calculateKruskal_ALT(Graph<T>* mst_graph)
 			else if (origin->path == NULL)
 				origin->path=dest;
 			edges_accepted++;
-            
+
 			//cout << "Adding edge from vertex " << origin->info << " to vertex " << dest->info << endl;
-            
-            // Minimum Spanning Tree Graph - Creation
-            mst_graph->addVertex(origin->info);
-            mst_graph->addVertex(dest->info);
-        
-            // arestas nos dois sentidos
-            mst_graph->addEdge(origin->info,dest->info,minEdge.weight);
-            mst_graph->addEdge(dest->info,origin->info,minEdge.weight);
+
+			// Minimum Spanning Tree Graph - Creation
+			mst_graph->addVertex(origin->info);
+			mst_graph->addVertex(dest->info);
+
+			// arestas nos dois sentidos
+			mst_graph->addEdge(origin->info,dest->info,minEdge.weight);
+			mst_graph->addEdge(dest->info,origin->info,minEdge.weight);
 		}
 	}
-    
+
 	return forest;
 }
-
-
-/*
- *
- * Esta fun��o implementa o algoritmo de Ford-Fulkerson para encontrar 
- * o fluxo m�ximo desde o v�rtice- fonte source at� os n�s recetores no grafo
- *
- */
-
-template <class T>
-vector<Vertex<T>*> Graph<T>::calculateFordFulkerson(T source)
-{
-	Graph<T> gr = this->clone();
-	Graph<T> gf = this->clone();
-	gf.resetEdgeFlow();
-
-	Vertex<T>* start = gr.getVertex(source);
-	if (start==NULL) throw -1;
-
-	while(true)
-	{
-		vector<Vertex<T>*> visited;
-		visited.push_back(start);
-
-		float res = this->calculateFordFulkerson(start, NULL, 99999, &gf, &gr, visited);
-		if (res < 0)
-		{
-			cout << "*** All paths were searched. Terminating!" << endl;
-			break;
-		}
-	}
-
-	return gf.vertexSet;
-}
-
-template <class T>
-float Graph<T>::calculateFordFulkerson(Vertex<T>* current, Vertex<T>* parent, float min, Graph<T>* gf, Graph<T>* gr, vector<Vertex<T>*> visited)
-{
-	cout << "*** Currently in vertex " << current->info << endl;
-	cout << "*** Minimum value is " << min << endl;
-
-	vector<Edge<T> > edges = current->adj;
-
-	for (unsigned int i = 0; i < edges.size(); i++)
-	{
-		Edge<T> e = edges[i];
-
-		cout << "*** Searching edge to vertex " << e.dest->info << endl;
-
-		Vertex<T>* dest = edges[i].dest;
-		Vertex<T>* destInGraph = this->getVertex(edges[i].dest->info);
-
-		bool alreadyVisited = false;
-		for (unsigned int e = 0; e < visited.size(); e++)
-		{
-			if (dest->info == visited[e]->info)
-			{
-				cout << "*** Detected that " << dest->info << " was already visited. Will now continue with the next one!" << endl;
-				alreadyVisited = true;
-				break;
-			}
-		}
-
-		if (alreadyVisited)
-			continue;
-
-		if (e.flow < min)
-		{
-			min = e.flow;
-			cout << "*** Minimum flow updated to: " << min << endl;
-		}
-
-		visited.push_back(dest);
-
-		if (destInGraph->adj.size() == 0)
-		{
-			cout << "*** Reached a destination: " << dest->info << endl;
-
-			//Upon the return, update the edges with the min value
-			float newVal = e.flow - min;
-			if (newVal == 0)
-			{
-				cout << "*** Deleting edge from " << current->info << " to " << dest->info << " since the val is 0!" << endl;
-				gr->removeEdge(current->info, dest->info);
-			}
-			else
-				current->updateEdgeFlow(i, e.flow - min);
-
-
-			//Check to see if this edge already exists
-			bool edgeExists = false;
-			unsigned int a = 0;
-			for (a = 0; a < dest->adj.size(); a++)
-			{
-				if (dest->adj[a].dest->info == current->info)
-				{
-					edgeExists = true;
-					break;
-				}
-			}
-
-			if (!edgeExists)
-			{
-				gr->addEdge(dest->info, current->info, e.weight, min);
-				cout << "*** Edge from " << dest->info << " to " << current->info << " does not exist in Gr... Adding with " << min << endl;
-			}
-			else
-			{
-				dest->updateEdgeFlow(a, dest->adj[a].flow + min);
-				cout << "*** Edge from " << dest->info << " to " << current->info << " already exists in Gr... Updating to: " << dest->adj[a].flow + min << endl;
-			}
-
-			//Search for the correct edge on Gf since both graphs may be unsynchronized
-			Vertex<T>* updatedVertex = gf->getVertex(current->info);
-			for (a = 0; a < current->adj.size(); a++)
-			{
-				if (current->adj[a].dest->info == dest->info)
-					break;
-			}
-			float prevValue = updatedVertex->adj[a].flow;
-
-			updatedVertex->updateEdgeFlow(a, prevValue + min);
-			Edge<T> updatedEdge = updatedVertex->adj[a];
-
-			cout << "*** Setting a new edge flow value to the final graph from " << updatedVertex->info << " to " << updatedEdge.dest->info << " with a flow value of " << updatedEdge.flow << endl;
-
-			cout << "****** Returning minimum value of : " << min << endl;
-			return min;
-		}
-		else
-		{
-			cout << "*** Will enter recursion with new current: " << dest->info << endl;
-			float newmin = this->calculateFordFulkerson(dest, current, min, gf, gr, visited);
-
-			cout << "*** Returned from recursion where new current was: " << dest->info << endl;
-			cout << "*** New minimum value is: " << newmin << endl;
-
-			if (newmin < 0)
-			{
-				cout << "*** There are no more paths to the destination. Exiting with new minimum: " << newmin << endl;
-				continue;
-			}
-
-			//Upon the return, update the edges with the min value
-			float newVal = e.flow - newmin;
-			if (newVal == 0)
-			{
-				cout << "*** Deleting edge from " << current->info << " to " << dest->info << " since the val is 0!" << endl;
-				gr->removeEdge(current->info, dest->info);
-			}
-			else
-				current->updateEdgeFlow(i, e.flow - newmin);
-
-			//Check to see if this edge already exists
-			bool edgeExists = false;
-			unsigned int a = 0;
-			for (a = 0; a < dest->adj.size(); a++)
-			{
-				if (dest->adj[a].dest->info == current->info)
-				{
-					edgeExists = true;
-					break;
-				}
-			}
-
-			if (!edgeExists)
-			{
-				gr->addEdge(dest->info, current->info, e.weight, newmin);
-				cout << "*** Edge from " << dest->info << " to " << current->info << " does not exist in Gr... Adding with " << newmin << endl;
-			}
-			else
-			{
-				float newVal = dest->adj[a].flow + newmin;
-				dest->updateEdgeFlow(a, newVal);
-				cout << "*** Edge from " << dest->info << " to " << current->info << " already exists in Gr... Updating to: " << newVal << endl;
-			}
-
-			//Search for the correct edge on Gf since both graphs may be unsynchronized
-			Vertex<T>* updatedVertex = gf->getVertex(current->info);
-			for (a = 0; a < updatedVertex->adj.size(); a++)
-			{
-				if (updatedVertex->adj[a].dest->info == dest->info)
-					break;
-			}
-			if (a < updatedVertex->adj.size())
-			{
-				float prevValue = updatedVertex->adj[a].flow;
-
-				updatedVertex->updateEdgeFlow(a, prevValue + newmin);
-				Edge<T> updatedEdge = updatedVertex->adj[a];
-
-				cout << "*** Setting a new edge flow value to the final graph from " << updatedVertex->info << " to " << updatedEdge.dest->info << " with a flow value of " << updatedEdge.flow << endl;
-			}
-			else {
-				cout << "*** Didn't find the edge on Gf. Probably this was a REVERSE EDGE created in Gr. Find corresponding in Gf..." << endl;
-				Vertex<T>* reverseVertex = gf->getVertex(dest->info);
-				for (a = 0; a < reverseVertex->adj.size(); a++)
-				{
-					if (reverseVertex->adj[a].dest->info == current->info)
-						break;
-				}
-				if (a < reverseVertex->adj.size())
-				{
-					float prevValue = reverseVertex->adj[a].flow;
-
-					reverseVertex->updateEdgeFlow(a, prevValue - newmin);
-					Edge<T> reverseEdge = reverseVertex->adj[a];
-
-					cout << "*** ADJUSTING edge flow value to the final graph from " << reverseVertex->info << " to " << reverseEdge.dest->info << " with a flow value of " << reverseEdge.flow << endl;
-				}
-
-			}
-
-			cout << "*** Returning new minimum value of " << newmin << " after recursion!" << endl;
-			return newmin;
-		}
-
-	}
-
-	//Return the previously found minimum?
-	return -1;
-}
-
-
 
 
 #endif /* GRAPH_H_ */
