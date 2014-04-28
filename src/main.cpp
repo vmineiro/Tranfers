@@ -3,12 +3,17 @@
  */
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "Transfairs.h"
+#include "graphviewer.h"
 
 using namespace std;
 
 Transfairs iniciaProblema();
+
+vector<Service> servicos;
 
 int main()
 {
@@ -61,10 +66,10 @@ Transfairs iniciaProblema(){
 	Graph<Service> transf_graph;
 
 	// NÓS - GRAFO
-	Service aero("A", 0, Time(), 0, 0); // Aeroporto
-	Service serv_b("B", 2, Time(11,0), 60, 60);
-	Service serv_c("C", 2, Time(11,0), 75, 60);
-	Service serv_d("D", 2, Time(10,30), 75, 60);
+	Service aero("A", 0, Time(23,59), 0, 1439); // Aeroporto
+	Service serv_b("B", 10, Time(16,00), 60, 60);
+	Service serv_c("C", 10, Time(16,00), 75, 60);
+	Service serv_d("D", 10, Time(10,30), 75, 60);
 	Service serv_e("E", 2, Time(10,0), 75, 60);
 	Service serv_f("F", 2, Time(10,0), 60, 60);
 
@@ -126,6 +131,7 @@ Transfairs iniciaProblema(){
 	transf_graph.addEdge(serv_e, serv_f, 15.0);
 	transf_graph.addEdge(serv_f, serv_e, 15.0);
 
+
 	Transfairs transfair;
 
 	transfair.setGrafoInicial(transf_graph);
@@ -134,4 +140,135 @@ Transfairs iniciaProblema(){
 
 }
 
+vector<vector<string>> csvReader(string filename) {
 
+	vector<vector<string>> vec;
+	vector <string> subVec;
+	ifstream file(filename);
+
+	while (!file.eof())
+	{
+		if (file)
+		{
+			string line;
+			if (!getline(file, line)) break;
+
+			istringstream content(line);
+			subVec.clear();
+
+			while (content)
+			{
+				string subContent;
+				if (!getline(content, subContent, ',')) break;
+				subVec.push_back(subContent);
+			}
+
+			vec.push_back(subVec);
+		}
+		else {
+			cout << "File not found.";
+			break;
+		}
+	}
+
+	return vec;
+}
+
+//Retorna um vetor de vetores, sendo que cada subvetor apresenta a informacao relativa a cada servico
+vector<vector<string>> csvGraphReader(string filename) {
+
+	return csvReader("Graph.csv");
+}
+
+vector<vector<string>> csvDistancesReader(string filename) {
+
+	return csvReader("Distances.csv");
+}
+
+int stringToInt(string str) {
+	int n;
+	istringstream(str) >> n;
+	return n;
+}
+
+Service getService(vector<vector<string>> graphs, int i) {
+
+	//Nome do servico
+	string serviceName = graphs[i][0];
+
+	//Num de passageiros
+	string str_numPassag = graphs[i][1];
+	int numPassag = stringToInt(str_numPassag);
+
+	//Tempo de chegada ao aeroporto
+	string str_hChegadaAero = graphs[i][2];
+	string str_mChegadaAero = graphs[i][3];
+	int hChegadaAero = stringToInt(str_hChegadaAero);
+	int mChegadaAero = stringToInt(str_mChegadaAero);
+
+	Time hMaxChegada;
+	hMaxChegada.setTime(hChegadaAero, mChegadaAero);
+
+	//Tempo de overhead
+	string str_minOverhead = graphs[i][5];
+	int minOverhead = stringToInt(str_minOverhead);
+
+	//Tempo de chegada ao aeroporto
+	string str_chegadaAero = graphs[i][4];
+	int chegadaAero = stringToInt(str_chegadaAero);
+
+	//Definicao do servico com os parametros correspondentes
+	Service temp = Service(serviceName, numPassag, hMaxChegada, chegadaAero, minOverhead);
+
+	return temp;
+}
+
+Graph<Service> csvGraphCreator(string filename) {
+
+	vector<vector<string>> graphs = csvGraphReader(filename);
+
+	Graph<Service> G = Graph<Service>();
+
+	for (unsigned int i = 0; i < graphs.size(); i++) {
+
+		Service S = getService(graphs, i);
+
+		if (graphs[i][0] == S.getNomServ) {
+			servicos.push_back(S);
+			G.addVertex(S);
+		}
+
+		if (i != 0) {
+			Service lastS = servicos[servicos.size() - 2];
+			G.addEdge(lastS, S, 50);
+		}
+	}
+
+	return G;
+}
+
+void drawGraph(Graph<Service> G) {
+
+	//GraphViewer *gv = new GraphViewer(600, 600, true);
+	//gv->createWindow(600, 600);
+
+	//gv->defineVertexColor("blue");
+	//gv->defineEdgeColor("black");
+
+	int edgeID = 0;
+
+	vector<Vertex<Service> *> vertexSet = G.getVertexSet();
+
+	for (unsigned int i = 0; i < servicos.size(); i++) {
+
+		Service temp = servicos[i];
+		string nomeServico = temp.getNomServ;
+		//gv->addNode(i);
+		//gv->setVertexLabel(i, nomeServico);
+
+		if (i != 0) {
+			//gv->addEdge(edgeID, i - 1, i, EdgeType::UNDIRECTED);
+			edgeID++;
+		}
+	}
+}
