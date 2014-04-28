@@ -331,15 +331,6 @@ void Transfairs::dfsCalcPRIM_case2(){
 
    solucao_P2 = my_dfs_P_case2();
 
-	solucao_P2.push_back(grafoInicial.getVertexSet()[0]->getInfo());
-
-   size_t nAux = solucao_P.size();
-
-   int ultimaViagem = grafoInicial.edgeCost(solucao_P2[nAux-2].getServId()-1, solucao_P2[nAux-1].getServId()-1);
-
-   Time ultimoPercurso(ultimaViagem/60,ultimaViagem%60);
-
-   solucao_P2[nAux-1].setHPassagem(solucao_P2[nAux-2].getHPassagem()+ultimoPercurso);
 }
 
 vector<Service> Transfairs::my_dfs_P_case2() {
@@ -364,7 +355,13 @@ vector<Service> Transfairs::my_dfs_P_case2() {
 
    (*it)->setVisited(true);
    res.push_back((*it)->getInfo());
-   it++;
+
+   //it++;
+
+   // while (!todosVisitados(mst_vec)){
+
+   //   it=mst_vec.begin();
+      it++;
 
    for (; it !=ite; it++)
       if ( (*it)->getVisited()==false ){
@@ -373,21 +370,12 @@ vector<Service> Transfairs::my_dfs_P_case2() {
             res.push_back(mst_vec[0]->getInfo());
             atualizaHoraPercurso(res);
             regresso = false;
+
          }
-		}
+      }
 
-   size_t resSize = res.size();
-
-   if (resSize != 1){
-      int viagemAnterior = grafoInicial.edgeCost(res[resSize-2].getServId()-1, res[resSize-1].getServId()-1);
-
-      Time tempoAnterior(viagemAnterior/60,viagemAnterior%60);
-
-      Time paragemOri = res[resSize-2].getHPassagem() + tempoAnterior;
-
-      res[resSize-1].setHPassagem(paragemOri);
-   }
-
+      // updatePartidaMaisTarde(mst_vec);
+      // }
 	return res;
 }
 
@@ -399,6 +387,8 @@ bool Transfairs::my_dfs_case2(Vertex<Service> *v,vector<Service> &res, bool* reg
 
    bool validPoint = false;
 
+   int nPass =0;
+
    if (res.size() == 2){
 
       atualizaHoraPartida(res);
@@ -406,26 +396,23 @@ bool Transfairs::my_dfs_case2(Vertex<Service> *v,vector<Service> &res, bool* reg
       if (res[0].getHPassagem() > partidaMaisTarde) {
 
          v->setVisited(false);
+         res.pop_back();
 
          return false;
 
       }
 
-      int nPass = atualizaPassageiros(res);
+      nPass = atualizaPassageiros(res);
 
       for (int i = 0 ; i < (v->getAdj()).size(); i++){
-         if (regresso) return true;
+         if ((*regresso)) return true;
          if ( (v->getAdj())[i].getDest()->getVisited() == false ){
 
-            if (!continua(res[res.size()-1], (v->getAdj())[i].getDest(), nPass)) {
+            if (continua(res[res.size()-1], (v->getAdj())[i].getDest(), nPass)) {
 
-            *regresso = true;
-
-               return true;
+               validPoint = my_dfs_case2((v->getAdj())[i].getDest(), res, regresso);
 
             }
-
-            validPoint = my_dfs_case2((v->getAdj())[i].getDest(), res, regresso);
          }
       }
 
@@ -433,7 +420,7 @@ bool Transfairs::my_dfs_case2(Vertex<Service> *v,vector<Service> &res, bool* reg
 
       atualizaHoraPercurso(res);
 
-      if (!verificaHorario(res)){
+      if (!verificaHorario_case2(res)){
 
          v->setVisited(false);
          res.pop_back();
@@ -441,34 +428,43 @@ bool Transfairs::my_dfs_case2(Vertex<Service> *v,vector<Service> &res, bool* reg
 
       }
 
-      int nPass = atualizaPassageiros(res);
+      nPass = atualizaPassageiros(res);
 
       for (int i = 0 ; i < (v->getAdj()).size(); i++){
-         if (regresso) return true;
+         if ((*regresso)) return true;
          if ( (v->getAdj())[i].getDest()->getVisited() == false ){
 
-            if (!continua(res[res.size()-1], (v->getAdj())[i].getDest(), nPass)) {
+            if (continua(res[res.size()-1], (v->getAdj())[i].getDest(), nPass)) {
 
-               *regresso = true;
-
-               return true;
+               validPoint = my_dfs_case2((v->getAdj())[i].getDest(), res, regresso);
 
             }
 
-            validPoint = my_dfs_case2((v->getAdj())[i].getDest(), res, regresso);
          }
       }
 
-
    }
 
-   if (regresso) return true;
+   if (passagTransportados(res) == numPassageirosTotal()) {
+      (*regresso) = true;
+      return true;
+   }
    /*
-   if () {
-      validPoint = verificaChegada(res);
-   }
-   */
+    if () {
+    validPoint = verificaChegada(res);
+    }
+    */
+
+   //TODO: passar validpoint a true; ou adicionar outra variavel para o não continua...
    if (!validPoint){
+      vector<Edge<Service> > adj = v->getAdj();
+
+      // if (nPass == capacidadeVan){
+
+      if (!possiveisTransportes(res,adj)) {
+         (*regresso) = true;
+         return true;
+      }
       v->setVisited(false);
       res.pop_back();
    }
@@ -519,6 +515,18 @@ int Transfairs::atualizaPassageiros(vector<Service> &res){
    return nPass;
 }
 
+int Transfairs::passagTransportados(vector<Service> &res){
+
+   int nPass = 0;
+
+   for (int i = 1; i < res.size(); i++){
+
+      nPass += res[i].getNumPassag();
+   }
+
+   return nPass;
+}
+
 bool Transfairs::verificaChegada(vector<Service> &res){
 
    int duracaoPercurso = grafoInicial.edgeCost(res[res.size()-2].getServId()-1, res[res.size()-1].getServId()-1);
@@ -540,6 +548,34 @@ bool Transfairs::verificaChegada(vector<Service> &res){
    return true;
 }
 
+bool Transfairs::verificaHorario_case2(vector<Service> &res){
+
+   size_t ultimo = res.size() - 1;
+   if (res[ultimo].getHPassagem() < res[ultimo].getHminRecolha() || res[ultimo].getHPassagem() > res[ultimo].getHmaxRecolha()){
+      return false;
+   }
+
+   Time chegadaMax = res[1].getHmaxChegada();
+
+   for (int i = 1; i<res.size();i++){
+      if (res[i].getServId() == 1){
+         chegadaMax = res[i+1].getHmaxChegada();
+      } else if (chegadaMax >  res[i].getHmaxChegada()) {
+         chegadaMax = res[i].getHmaxChegada();
+      }
+   }
+
+   int duracaoRegresso = grafoInicial.edgeCost(res[ultimo].getServId()-1, 0);
+
+   Time horasPercRegresso(duracaoRegresso/60,duracaoRegresso%60);
+
+   Time horaFim = res[ultimo].getHPassagem() + horasPercRegresso;
+
+   if ( horaFim > chegadaMax ) return false;
+
+   return true;
+}
+
 bool Transfairs::verificaHorario(vector<Service> &res)
 {
    size_t ultimo = res.size() - 1;
@@ -557,18 +593,63 @@ bool Transfairs::continua(Service ori, Vertex<Service> * dest, int nPass){
       return false;
    }
 
-   int duracaoViagem = grafoInicial.edgeCost(ori.getServId()-1, dest->getInfo().getServId()-1);
-
-   Time horasViagem(duracaoViagem/60,duracaoViagem%60);
-
-   Time chegada = ori.getHPassagem() + horasViagem;
-
-   if (chegada < dest->getInfo().getHminRecolha() || chegada > dest->getInfo().getHmaxRecolha()) {
-      return false;
-   }
    return true;
 
 }
+
+bool Transfairs::possiveisTransportes(vector<Service> &res, vector<Edge<Service> > &adj){
+
+   int lugaresVagos = capacidadeVan - atualizaPassageiros(res);
+
+   for (int i = 0; i < adj.size(); i++){
+      if (adj[i].getDest()->getVisited() == false){
+         if (adj[i].getDest()->getInfo().getNumPassag() <= lugaresVagos) {
+            // if (possivelRecolher(res[res.size()-1],adj[i].getDest()->getInfo())) {
+               return true;
+            // }
+         }
+      }
+   }
+
+   return false;
+
+}
+
+
+bool Transfairs::possivelRecolher(Service ori,Service dest){
+
+   int duracaoViagem = grafoInicial.edgeCost(ori.getServId()-1, dest.getServId()-1) + grafoInicial.edgeCost(dest.getServId()-1, 0);
+
+   Time horasViagem(duracaoViagem/60,duracaoViagem%60);
+
+   Time fimViagem = ori.getHPassagem()+horasViagem;
+
+   if (fimViagem > chegadaMaisTarde ) {
+      return false;
+   }
+
+   return true;
+
+}
+
+
+
+bool Transfairs::todosVisitados(vector< Vertex<Service> *> vec){
+
+   size_t servicosNaoVisitados = 0;
+
+   for (int i = 0; i < vec.size(); i++) {
+      if (vec[i]->getVisited() == false) {
+         servicosNaoVisitados++;
+      }
+   }
+   if (servicosNaoVisitados == 0) {
+      return true;
+   }
+   return false;
+
+}
+
 
 
 //##################################################################################################################
@@ -603,6 +684,11 @@ void Transfairs::encontraSolucao(){
 
       //dfsCalcPRIM_case2();
       //printSol(solucao_P2);
+
+      dfsCalcPRIM_case3();
+      for (int i = 0 ; i < solucao_P3.size(); i++) {
+         printSol(solucao_P3[i]);
+      }
 
    } else {
 
@@ -663,6 +749,77 @@ Time Transfairs::getEarlierArriveTime() {
 
 }
 
+vector< vector<Service> >Transfairs::my_dfs_P_case3() {
+
+   Graph<Service> grafoTemp = grafoInicial.clone();
+
+   grafoTemp.resetVisited();
+
+   bool regresso = false;
+
+	vector<Vertex<Service>*> mst_vec = grafoTemp.getVertexSet();
+
+	vector<Vertex<Service>*>::iterator it= mst_vec.begin();
+	vector<Vertex<Service>*>::iterator ite= mst_vec.end();
+
+	for (; it !=ite; it++)
+		(*it)->setVisited(false);
+
+   vector <vector<Service> >  solFinal;
+	//vector<Service> res;
+	it=mst_vec.begin();
+
+   (*it)->setVisited(true);
+   //res.push_back((*it)->getInfo());
+
+   while (!todosVisitados(mst_vec)){
+
+      vector<Service> res;
+      it=mst_vec.begin();
+      res.push_back((*it)->getInfo());
+      it++;
+
+      for (; it !=ite; it++)
+         if ( (*it)->getVisited()==false ){
+            my_dfs_case2(*it,res, &regresso);
+            if (regresso) {
+               res.push_back(mst_vec[0]->getInfo());
+               atualizaHoraPercurso(res);
+               regresso = false;
+
+            }
+         }
+
+      updatePartidaMaisTarde(mst_vec);
+      solFinal.push_back(res);
+   }
+
+   return solFinal;
+}
 
 
+void Transfairs::updatePartidaMaisTarde(vector<Vertex<Service>*> vec) {
 
+	size_t numServices = vec.size();
+
+   Time minTime(23,59);;
+
+	for (int i = 0; i < numServices; i++){
+      if (vec[i]->getVisited() == false) {
+         if (vec[i]->getInfo().getHmaxChegada() < minTime){
+
+            minTime = vec[i]->getInfo().getHmaxChegada();
+         }
+      }
+	}
+
+   this->partidaMaisTarde = minTime;
+
+}
+
+
+void Transfairs::dfsCalcPRIM_case3(){
+
+   solucao_P3 = my_dfs_P_case3();
+
+}

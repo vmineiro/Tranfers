@@ -31,6 +31,8 @@ class Transfairs{
    vector<Service> solucao_P;
    vector<Service> solucao_P2;
 
+   vector <vector<Service> > solucao_P3;
+
 
    Time chegadaMaisTarde;
    Time partidaMaisTarde;
@@ -62,11 +64,14 @@ public:
    void dfsCalc();
    void dfsCalcPRIM();
    void dfsCalcPRIM_case2();
+   void dfsCalcPRIM_case3();
 
    vector<Service> my_dfs();
 
    vector<Service> my_dfs_P();
    vector<Service> my_dfs_P_case2();
+   vector <vector<Service> > my_dfs_P_case3();
+
 	bool my_dfs(Vertex<Service> *v,vector<Service> &res);
    bool my_dfs_case2(Vertex<Service> *v,vector<Service> &res, bool* regresso);
 
@@ -87,9 +92,23 @@ public:
    void atualizaHoraPartida(vector<Service> &res);
    void atualizaHoraPercurso(vector<Service> &res);
    int atualizaPassageiros(vector<Service> &res);
+   int passagTransportados(vector<Service> &res);
+
+   bool todosVisitados(vector< Vertex<Service> *> vec);
+   //bool verificaChegada_case2(vector<Service> &res);
 
    bool verificaChegada(vector<Service> &res);
    bool verificaHorario(vector<Service> &res);
+
+   bool verificaHorario_case2(vector<Service> &res);
+
+   bool possiveisTransportes(vector<Service> &res, vector<Edge<Service> > &adj);
+
+
+   bool possivelRecolher(Service ori,Service dest);
+
+   void updatePartidaMaisTarde(vector<Vertex<Service>*> vec);
+
 
 };
 
